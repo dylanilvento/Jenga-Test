@@ -28,4 +28,9 @@ public class BrickManager : MonoBehaviour
     {
         brickData = data;
     }
+
+    public ApiStackData GetBrickData()
+    {
+        return brickData;
+    }
 }

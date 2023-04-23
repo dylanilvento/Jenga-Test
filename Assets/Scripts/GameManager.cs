@@ -38,7 +38,27 @@ public class GameManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update() { }
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            Physics.Raycast(ray, out hit);
+
+            if (hit.collider.GetComponent<BrickManager>() != null)
+            {
+                ResetOutlines();
+
+                hit.collider.GetComponent<cakeslice.Outline>().eraseRenderer = false;
+
+                BrickInfoBoxManager.Instance.SetInfoText(
+                    hit.collider.GetComponent<BrickManager>().GetBrickData()
+                );
+            }
+        }
+    }
 
     public void AddToBrickManagerList(BrickManager brickManager)
     {
@@ -249,6 +269,14 @@ public class GameManager : MonoBehaviour
         DestroyAllRowGroupManagers();
 
         StartCoroutine(SpawnStacks());
+    }
+
+    void ResetOutlines()
+    {
+        foreach (BrickManager brick in brickManagers)
+        {
+            brick.GetComponent<cakeslice.Outline>().eraseRenderer = true;
+        }
     }
 
     void DestroyAllRowGroupManagers()
