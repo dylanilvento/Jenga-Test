@@ -4,8 +4,18 @@ using UnityEngine;
 
 public class TableAndStackController : MonoBehaviour
 {
+    [Space(20)]
+    [SerializeField]
+    public GameObject[] stacks;
+
+    public static TableAndStackController Instance;
+
     // Start is called before the first frame update
-    void Start() { }
+    void Start()
+    {
+        if (Instance == null)
+            Instance = this;
+    }
 
     // Update is called once per frame
     void Update()

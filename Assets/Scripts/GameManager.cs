@@ -15,9 +15,7 @@ public class GameManager : MonoBehaviour
     public List<ApiStackData> eighthGrade = new List<ApiStackData>();
 
     [SerializeField]
-    GameObject glassBrickPrefab,
-        woodBrickPrefab,
-        stoneBrickPrefab;
+    GameObject stackRowGroupPrefab;
 
     string url = "https://ga1vqcu3o1.execute-api.us-east-1.amazonaws.com/Assessment/stack";
 
@@ -29,7 +27,7 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
             Instance = this;
 
-        StartCoroutine(GetData());
+        StartCoroutine(GetDataAndSpawnStacks());
     }
 
     // Update is called once per frame
@@ -51,11 +49,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public IEnumerator GetData()
+    public IEnumerator GetDataAndSpawnStacks()
     {
         yield return StartCoroutine(FetchData());
 
         SortGrades();
+
+        StartCoroutine(SpawnStacks());
     }
 
     public IEnumerator FetchData()
@@ -70,7 +70,6 @@ public class GameManager : MonoBehaviour
             else
             {
                 string requestText = request.downloadHandler.text.ToString();
-                Debug.Log(requestText);
 
                 apiStackDataList = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiStackData[]>(
                     requestText
@@ -119,5 +118,71 @@ public class GameManager : MonoBehaviour
                 }
             );
         }
+    }
+
+    IEnumerator SpawnStacks()
+    {
+        foreach (
+            List<ApiStackData> stack in new List<List<ApiStackData>>
+            {
+                sixthGrade,
+                seventhGrade,
+                eighthGrade
+            }
+        )
+        {
+            for (int ii = 0; ii < stack.Count; ii += 3)
+            {
+                ApiStackData leftBrick = stack[ii];
+                ApiStackData middleBrick = ii + 1 < stack.Count ? stack[ii + 1] : null;
+                ApiStackData rightBrick = ii + 2 < stack.Count ? stack[ii + 2] : null;
+                yield return new WaitForSeconds(0.25f);
+                SpawnStackRowGroup(leftBrick, middleBrick, rightBrick);
+            }
+        }
+    }
+
+    void SpawnStackRowGroup(
+        ApiStackData leftBrick,
+        ApiStackData middleBrick,
+        ApiStackData rightBrick
+    )
+    {
+        StackController currentStack = GetAssignedGradeStack(leftBrick.grade);
+
+        Vector3 spawnPosition = new Vector3(
+            currentStack.transform.position.x,
+            currentStack.transform.position.y + 10f,
+            currentStack.transform.position.z
+        );
+
+        GameObject spawnedStackRow = Instantiate(
+            stackRowGroupPrefab,
+            spawnPosition,
+            Quaternion.identity,
+            currentStack.transform
+        );
+        // yield return new WaitForSeconds(0.5f);
+        spawnedStackRow
+            .GetComponent<StackRowGroupManager>()
+            .SpawnBricks(leftBrick, middleBrick, rightBrick);
+    }
+
+    StackController GetAssignedGradeStack(string grade)
+    {
+        if (grade.Contains("6th"))
+        {
+            return TableAndStackController.Instance.stacks[0].GetComponent<StackController>();
+        }
+        else if (grade.Contains("7th"))
+        {
+            return TableAndStackController.Instance.stacks[1].GetComponent<StackController>();
+        }
+        else if (grade.Contains("8th"))
+        {
+            return TableAndStackController.Instance.stacks[2].GetComponent<StackController>();
+        }
+
+        return null;
     }
 }
