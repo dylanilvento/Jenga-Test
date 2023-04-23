@@ -56,7 +56,7 @@ public class StackRowGroupManager : MonoBehaviour
             GameObject spawnedBrick = Instantiate(
                 brickPrefab,
                 spawn.position,
-                Quaternion.identity,
+                transform.rotation,
                 this.transform
             );
 

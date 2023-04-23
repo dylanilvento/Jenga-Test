@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
     {
         foreach (BrickManager brick in brickManagers)
         {
+            brick.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+
             if (brick.brickType == BrickType.Glass)
             {
                 Destroy(brick.gameObject);
@@ -131,13 +133,18 @@ public class GameManager : MonoBehaviour
             }
         )
         {
+            int stackCount = 0;
             for (int ii = 0; ii < stack.Count; ii += 3)
             {
                 ApiStackData leftBrick = stack[ii];
                 ApiStackData middleBrick = ii + 1 < stack.Count ? stack[ii + 1] : null;
                 ApiStackData rightBrick = ii + 2 < stack.Count ? stack[ii + 2] : null;
+
+                float rotationZ = (stackCount % 2 == 0) ? 90f : 0;
+                stackCount++;
+
                 yield return new WaitForSeconds(0.25f);
-                SpawnStackRowGroup(leftBrick, middleBrick, rightBrick);
+                SpawnStackRowGroup(leftBrick, middleBrick, rightBrick, rotationZ);
             }
         }
     }
@@ -145,10 +152,13 @@ public class GameManager : MonoBehaviour
     void SpawnStackRowGroup(
         ApiStackData leftBrick,
         ApiStackData middleBrick,
-        ApiStackData rightBrick
+        ApiStackData rightBrick,
+        float rotationZ
     )
     {
         StackController currentStack = GetAssignedGradeStack(leftBrick.grade);
+
+        Vector3 spawnRotation = new Vector3(0, rotationZ, 0);
 
         Vector3 spawnPosition = new Vector3(
             currentStack.transform.position.x,
@@ -159,7 +169,7 @@ public class GameManager : MonoBehaviour
         GameObject spawnedStackRow = Instantiate(
             stackRowGroupPrefab,
             spawnPosition,
-            Quaternion.identity,
+            Quaternion.Euler(spawnRotation),
             currentStack.transform
         );
         // yield return new WaitForSeconds(0.5f);
