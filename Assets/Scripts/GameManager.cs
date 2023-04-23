@@ -10,6 +10,15 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     public ApiStackData[] apiStackDataList;
 
+    public List<ApiStackData> sixthGrade = new List<ApiStackData>();
+    public List<ApiStackData> seventhGrade = new List<ApiStackData>();
+    public List<ApiStackData> eighthGrade = new List<ApiStackData>();
+
+    [SerializeField]
+    GameObject glassBrickPrefab,
+        woodBrickPrefab,
+        stoneBrickPrefab;
+
     string url = "https://ga1vqcu3o1.execute-api.us-east-1.amazonaws.com/Assessment/stack";
 
     public static GameManager Instance;
@@ -20,7 +29,7 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
             Instance = this;
 
-        GetData();
+        StartCoroutine(GetData());
     }
 
     // Update is called once per frame
@@ -42,9 +51,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void GetData()
+    public IEnumerator GetData()
     {
-        StartCoroutine(FetchData());
+        yield return StartCoroutine(FetchData());
+
+        SortGrades();
     }
 
     public IEnumerator FetchData()
@@ -65,6 +76,48 @@ public class GameManager : MonoBehaviour
                     requestText
                 );
             }
+        }
+    }
+
+    void SortGrades()
+    {
+        foreach (ApiStackData stack in apiStackDataList)
+        {
+            if (stack.grade.Contains("6th"))
+            {
+                sixthGrade.Add(stack);
+            }
+            if (stack.grade.Contains("7th"))
+            {
+                seventhGrade.Add(stack);
+            }
+            if (stack.grade.Contains("8th"))
+            {
+                eighthGrade.Add(stack);
+            }
+        }
+
+        foreach (
+            List<ApiStackData> group in new List<List<ApiStackData>>
+            {
+                sixthGrade,
+                seventhGrade,
+                eighthGrade
+            }
+        )
+        {
+            //apparently creates an unstable sort?
+            group.Sort(
+                (x, y) =>
+                {
+                    var order = x.domain.CompareTo(y.domain);
+                    if (order == 0)
+                        order = x.cluster.CompareTo(y.cluster);
+                    if (order == 0)
+                        order = x.standardid.CompareTo(y.standardid);
+                    return order;
+                }
+            );
         }
     }
 }
