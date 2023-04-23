@@ -8,6 +8,8 @@ public class TableAndStackController : MonoBehaviour
     [SerializeField]
     public GameObject[] stacks;
 
+    Vector3 rotationFocus = Vector3.zero;
+
     public static TableAndStackController Instance;
 
     // Start is called before the first frame update
@@ -24,12 +26,33 @@ public class TableAndStackController : MonoBehaviour
         {
             if (Input.GetAxis("Mouse X") > 0)
             {
-                gameObject.transform.RotateAround(Vector3.zero, Vector3.up, -0.25f);
+                gameObject.transform.RotateAround(rotationFocus, Vector3.up, -0.25f);
             }
             else if (Input.GetAxis("Mouse X") < 0)
             {
-                gameObject.transform.RotateAround(Vector3.zero, Vector3.up, 0.25f);
+                gameObject.transform.RotateAround(rotationFocus, Vector3.up, 0.25f);
             }
+        }
+    }
+
+    public void SwitchRotationFocus(int grade)
+    {
+        transform.rotation = Quaternion.Euler(Vector3.zero);
+        transform.position = Vector3.zero;
+
+        if (grade == 6)
+        {
+            transform.position = new Vector3(3f, 0, 0);
+            rotationFocus = stacks[0].transform.position;
+        }
+        else if (grade == 7)
+        {
+            rotationFocus = stacks[1].transform.position;
+        }
+        else if (grade == 8)
+        {
+            transform.position = new Vector3(-3f, 0, 0);
+            rotationFocus = stacks[2].transform.position;
         }
     }
 }

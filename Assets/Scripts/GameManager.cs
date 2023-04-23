@@ -201,11 +201,11 @@ public class GameManager : MonoBehaviour
                 ApiStackData middleBrick = ii + 1 < stack.Count ? stack[ii + 1] : null;
                 ApiStackData rightBrick = ii + 2 < stack.Count ? stack[ii + 2] : null;
 
-                float rotationZ = (stackCount % 2 == 0) ? 90f : 0;
+                float rotationY = (stackCount % 2 == 0) ? 90f : 0;
                 stackCount++;
 
                 yield return new WaitForSeconds(0.25f);
-                SpawnStackRowGroup(leftBrick, middleBrick, rightBrick, rotationZ);
+                SpawnStackRowGroup(leftBrick, middleBrick, rightBrick, rotationY);
             }
         }
 
@@ -216,12 +216,18 @@ public class GameManager : MonoBehaviour
         ApiStackData leftBrick,
         ApiStackData middleBrick,
         ApiStackData rightBrick,
-        float rotationZ
+        float rotationY
     )
     {
         StackController currentStack = GetAssignedGradeStack(leftBrick.grade);
 
-        Vector3 spawnRotation = new Vector3(0, rotationZ, 0);
+        Vector3 tableEulerAngles = TableAndStackController.Instance.transform.rotation.eulerAngles;
+
+        Vector3 spawnRotation = new Vector3(
+            tableEulerAngles.x,
+            tableEulerAngles.y + rotationY,
+            tableEulerAngles.z
+        );
 
         Vector3 spawnPosition = new Vector3(
             currentStack.transform.position.x,
