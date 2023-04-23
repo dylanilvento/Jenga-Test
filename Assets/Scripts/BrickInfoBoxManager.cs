@@ -22,7 +22,7 @@ public class BrickInfoBoxManager : MonoBehaviour
     {
         transform.position = new Vector2(
             transform.position.x,
-            Screen.height - (GetComponent<RectTransform>().sizeDelta.y)
+            Screen.height - (GetComponent<RectTransform>().sizeDelta.y * 0.75f)
         );
     }
 
