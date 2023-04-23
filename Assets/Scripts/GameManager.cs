@@ -1,10 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class GameManager : MonoBehaviour
 {
     List<BrickManager> brickManagers = new List<BrickManager>();
+
+    [SerializeField]
+    public ApiStackData[] apiStackDataList;
+
+    string url = "https://ga1vqcu3o1.execute-api.us-east-1.amazonaws.com/Assessment/stack";
 
     public static GameManager Instance;
 
@@ -13,6 +19,8 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
             Instance = this;
+
+        GetData();
     }
 
     // Update is called once per frame
@@ -30,6 +38,32 @@ public class GameManager : MonoBehaviour
             if (brick.brickType == BrickType.Glass)
             {
                 Destroy(brick.gameObject);
+            }
+        }
+    }
+
+    public void GetData()
+    {
+        StartCoroutine(FetchData());
+    }
+
+    public IEnumerator FetchData()
+    {
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            yield return request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log(request.error);
+            }
+            else
+            {
+                string requestText = request.downloadHandler.text.ToString();
+                Debug.Log(requestText);
+
+                apiStackDataList = Newtonsoft.Json.JsonConvert.DeserializeObject<ApiStackData[]>(
+                    requestText
+                );
             }
         }
     }
