@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     List<BrickManager> brickManagers = new List<BrickManager>();
+
+    List<StackRowGroupManager> rowGroupManagers = new List<StackRowGroupManager>();
 
     [SerializeField]
     public ApiStackData[] apiStackDataList;
@@ -20,6 +23,10 @@ public class GameManager : MonoBehaviour
     string url = "https://ga1vqcu3o1.execute-api.us-east-1.amazonaws.com/Assessment/stack";
 
     public static GameManager Instance;
+
+    [SerializeField]
+    Button testMyStackButton,
+        resetButton;
 
     // Start is called before the first frame update
     void Start()
@@ -38,24 +45,58 @@ public class GameManager : MonoBehaviour
         brickManagers.Add(brickManager);
     }
 
+    public void AddToStackRowGroupManagersList(StackRowGroupManager rowGroupManager)
+    {
+        rowGroupManagers.Add(rowGroupManager);
+    }
+
+    void DestroyAllBricks()
+    {
+        foreach (BrickManager brick in brickManagers)
+        {
+            brick.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+
+            Destroy(brick.gameObject);
+        }
+
+        brickManagers.Clear();
+    }
+
     public void DestroyAllGlassBricks()
     {
+        testMyStackButton.interactable = false;
+
+        List<BrickManager> brickManagersToRemove = new List<BrickManager>();
+
         foreach (BrickManager brick in brickManagers)
         {
             brick.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 
             if (brick.brickType == BrickType.Glass)
             {
+                brickManagersToRemove.Add(brick);
                 Destroy(brick.gameObject);
             }
         }
+
+        foreach (BrickManager brick in brickManagersToRemove)
+        {
+            brickManagers.Remove(brick);
+        }
+
+        resetButton.interactable = true;
     }
 
     public IEnumerator GetDataAndSpawnStacks()
     {
         yield return StartCoroutine(FetchData());
 
-        SortGrades();
+        testMyStackButton.interactable = false;
+
+        if (sixthGrade.Count == 0)
+        {
+            SortGrades();
+        }
 
         StartCoroutine(SpawnStacks());
     }
@@ -147,6 +188,8 @@ public class GameManager : MonoBehaviour
                 SpawnStackRowGroup(leftBrick, middleBrick, rightBrick, rotationZ);
             }
         }
+
+        testMyStackButton.interactable = true;
     }
 
     void SpawnStackRowGroup(
@@ -194,5 +237,26 @@ public class GameManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void ResetStacks()
+    {
+        testMyStackButton.interactable = false;
+        resetButton.interactable = false;
+
+        DestroyAllBricks();
+
+        DestroyAllRowGroupManagers();
+
+        StartCoroutine(SpawnStacks());
+    }
+
+    void DestroyAllRowGroupManagers()
+    {
+        foreach (StackRowGroupManager groupManager in rowGroupManagers)
+        {
+            Destroy(groupManager.gameObject);
+        }
+        rowGroupManagers.Clear();
     }
 }

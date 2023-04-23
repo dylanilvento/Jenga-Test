@@ -15,7 +15,10 @@ public class StackRowGroupManager : MonoBehaviour
         stoneBrickPrefab;
 
     // Start is called before the first frame update
-    void Start() { }
+    void Start()
+    {
+        GameManager.Instance.AddToStackRowGroupManagersList(this);
+    }
 
     // Update is called once per frame
     void Update() { }
