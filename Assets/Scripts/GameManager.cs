@@ -20,6 +20,10 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     GameObject stackRowGroupPrefab;
 
+    [SerializeField]
+    GameObject gameCanvas,
+        startCanvas;
+
     string url = "https://ga1vqcu3o1.execute-api.us-east-1.amazonaws.com/Assessment/stack";
 
     public static GameManager Instance;
@@ -34,7 +38,7 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
             Instance = this;
 
-        StartCoroutine(GetDataAndSpawnStacks());
+        gameCanvas.SetActive(false);
     }
 
     // Update is called once per frame
@@ -58,6 +62,14 @@ public class GameManager : MonoBehaviour
                 );
             }
         }
+    }
+
+    public void StartGame()
+    {
+        gameCanvas.SetActive(true);
+        startCanvas.SetActive(false);
+
+        StartCoroutine(GetDataAndSpawnStacks());
     }
 
     public void AddToBrickManagerList(BrickManager brickManager)
