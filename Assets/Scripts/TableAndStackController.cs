@@ -12,11 +12,22 @@ public class TableAndStackController : MonoBehaviour
 
     public static TableAndStackController Instance;
 
+    float turnSpeed;
+
     // Start is called before the first frame update
     void Start()
     {
         if (Instance == null)
             Instance = this;
+
+        if (Application.isEditor)
+        {
+            turnSpeed = 0.25f;
+        }
+        else
+        {
+            turnSpeed = 1.5f;
+        }
     }
 
     // Update is called once per frame
@@ -26,11 +37,11 @@ public class TableAndStackController : MonoBehaviour
         {
             if (Input.GetAxis("Mouse X") > 0)
             {
-                gameObject.transform.RotateAround(rotationFocus, Vector3.up, -0.25f);
+                gameObject.transform.RotateAround(rotationFocus, Vector3.up, -1 * turnSpeed);
             }
             else if (Input.GetAxis("Mouse X") < 0)
             {
-                gameObject.transform.RotateAround(rotationFocus, Vector3.up, 0.25f);
+                gameObject.transform.RotateAround(rotationFocus, Vector3.up, turnSpeed);
             }
         }
     }
